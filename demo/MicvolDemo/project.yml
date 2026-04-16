@@ -1,0 +1,30 @@
+name: MicvolDemo
+options:
+  bundleIdPrefix: com.fengur
+  deploymentTarget:
+    macOS: "13.0"
+  xcodeVersion: "15.0"
+
+targets:
+  MicvolDemo:
+    type: application
+    platform: macOS
+    sources:
+      - MicvolDemo
+    settings:
+      base:
+        SWIFT_OBJC_BRIDGING_HEADER: MicvolDemo/MicvolDemo-Bridging-Header.h
+        HEADER_SEARCH_PATHS:
+          - $(PROJECT_DIR)/../../include
+        LIBRARY_SEARCH_PATHS:
+          - $(PROJECT_DIR)/../../dist
+        OTHER_LDFLAGS:
+          - -lmicvol
+          - -framework CoreAudio
+          - -framework AudioToolbox
+          - -framework CoreFoundation
+        INFOPLIST_KEY_NSMicrophoneUsageDescription: "MicvolDemo needs microphone access to demonstrate input volume control."
+        PRODUCT_BUNDLE_IDENTIFIER: com.fengur.MicvolDemo
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        GENERATE_INFOPLIST_FILE: YES

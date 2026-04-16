@@ -8,6 +8,9 @@ repository = "https://github.com/Fengur/micvol"
 keywords = ["audio", "microphone", "volume", "coreaudio", "macos"]
 categories = ["multimedia::audio", "os::macos-apis"]
 
+[lib]
+crate-type = ["rlib", "staticlib"]
+
 [dependencies]
 coreaudio-sys = "0.2"
 thiserror = "2"

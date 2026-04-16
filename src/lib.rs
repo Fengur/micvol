@@ -19,6 +19,7 @@
 
 mod coreaudio;
 pub mod error;
+mod ffi;
 mod guard;
 mod manager;
 pub mod types;

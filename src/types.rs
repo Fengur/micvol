@@ -10,6 +10,10 @@ impl DeviceId {
     pub fn raw(&self) -> AudioDeviceID {
         self.0
     }
+
+    pub(crate) fn from_raw(id: AudioDeviceID) -> Self {
+        Self(id)
+    }
 }
 
 impl fmt::Display for DeviceId {
