@@ -1,0 +1,17 @@
+[package]
+name = "micvol"
+version = "0.1.0"
+edition = "2021"
+description = "Hardware-level microphone volume control for macOS via CoreAudio HAL"
+license = "MIT"
+repository = "https://github.com/Fengur/micvol"
+keywords = ["audio", "microphone", "volume", "coreaudio", "macos"]
+categories = ["multimedia::audio", "os::macos-apis"]
+
+[dependencies]
+coreaudio-sys = "0.2"
+thiserror = "2"
+log = "0.4"
+
+[dev-dependencies]
+env_logger = "0.11"
