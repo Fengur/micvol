@@ -4,6 +4,8 @@ Hardware-level microphone **input volume** control for macOS.
 
 [中文文档](README_CN.md)
 
+![micvol demo](demo.gif)
+
 ## What is "input volume"?
 
 This is **not** the output volume you adjust with your keyboard volume keys. This is the **input volume** — the gain level of your microphone's A/D converter, found in **System Settings > Sound > Input > Input Volume**.
