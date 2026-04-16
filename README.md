@@ -1,6 +1,6 @@
 # micvol
 
-Hardware-level microphone **input volume** control for macOS.
+macOS microphone **input volume** control library.
 
 [中文文档](README_CN.md)
 
@@ -8,83 +8,67 @@ Hardware-level microphone **input volume** control for macOS.
 
 ## What is "input volume"?
 
-This is **not** the output volume you adjust with your keyboard volume keys. This is the **input volume** — the gain level of your microphone's A/D converter, found in **System Settings > Sound > Input > Input Volume**.
+This is **not** the output volume you adjust with keyboard volume keys. This is the **input volume** slider in **System Settings > Sound > Input**.
 
-<img src="https://developer.apple.com/design/human-interface-guidelines/images/intro/platforms/platform-macOS-intro_2x.png" width="0" height="0" alt="" />
-
-```
-System Settings > Sound > Input
-┌─────────────────────────────────────┐
-│ Name              Type              │
-│ MacBook Pro Mic   Built-in          │
-│ AirPods Pro       Bluetooth    ◄──  │
-│                                     │
-│ Input Volume  ●━━━━━━━━━━━━━━━━━●  │ ← this slider
-│ Input Level   ▮▮▮▮▮▮▯▯▯▯▯▯▯▯▯▯  │
-└─────────────────────────────────────┘
-```
-
-`micvol` programmatically controls this slider via CoreAudio HAL.
-
-## Why?
-
-When you record audio with the input volume at 30%, the A/D converter only uses 30% of its dynamic range. Amplifying this signal later in software (AGC, digital gain) amplifies the noise floor too — you can't recover information that was never captured.
-
-By setting the hardware input volume to 100% **before** recording starts, you capture the full dynamic range at the source. `micvol` makes this a one-liner with RAII:
-
-```rust
-let device = micvol::default_input_device()?;
-{
-    let _guard = micvol::VolumeGuard::maximize(&device.id)?;
-    // ... record audio here — input gain is maximized ...
-}
-// guard dropped: original input volume automatically restored
-```
-
-If your program panics inside the guard, `Drop` still runs and restores the volume.
+`micvol` lets you programmatically control this slider.
 
 ## Features
 
-- **VolumeGuard** — RAII backup/maximize/restore of input volume in one line
-- **Device enumeration** — list all audio input devices with name, channels, volume
-- **Input volume control** — get/set hardware input volume scalar (0.0-1.0)
-- **Mute control** — get/set input mute state
-- Built on CoreAudio HAL (`AudioObjectGetPropertyData` / `AudioObjectSetPropertyData`)
+- **VolumeGuard** — maximize input volume, automatically restore on drop
+- **Device enumeration** — list all audio input devices
+- **Input volume control** — get/set volume (0.0–1.0)
+- **Mute control** — get/set mute state
 
 ## Install
+
+**Rust:**
 
 ```toml
 [dependencies]
 micvol = "0.1"
 ```
 
-## Examples
+**Swift / ObjC (static library):**
 
-List all input devices:
-
-```sh
-cargo run --example list_devices
+```bash
+./scripts/build_release.sh
+# outputs dist/libmicvol.a + dist/micvol.h
 ```
 
-```
-Audio input devices:
-  MacBook Pro Microphone [1ch] volume=100% mute=Unmuted
-  AirPods Pro [1ch] volume=73% mute=Unmuted (default)
+**CocoaPods:**
+
+```ruby
+pod 'Micvol', :git => 'https://github.com/Fengur/micvol.git'
 ```
 
-Demonstrate VolumeGuard:
+## Usage
 
-```sh
-cargo run --example normalize
+### Rust
+
+```rust
+let device = micvol::default_input_device()?;
+{
+    let _guard = micvol::VolumeGuard::maximize(&device.id)?;
+    // ... record audio — input volume is maximized ...
+}
+// guard dropped: input volume automatically restored
 ```
 
-```
-Device: AirPods Pro
-Original volume: 73%
-Volume during guard: 100%
-Recording for 3 seconds...
-Guard dropping, restoring volume...
-Volume after restore: 73%
+### C / Swift / ObjC
+
+```c
+#include "micvol.h"
+
+uint32_t device_id;
+char *name;
+micvol_default_input_device(&device_id, &name);
+
+MicvolGuard guard;
+micvol_guard_maximize(device_id, &guard);
+// ... record audio ...
+micvol_guard_restore(guard);
+
+micvol_free_string(name);
 ```
 
 ## API
@@ -102,9 +86,20 @@ micvol::set_volume(&DeviceId, Volume) -> Result<()>
 micvol::get_mute(&DeviceId) -> Result<MuteState>
 micvol::set_mute(&DeviceId, MuteState) -> Result<()>
 
-// RAII guard
+// VolumeGuard
 micvol::VolumeGuard::maximize(&DeviceId) -> Result<VolumeGuard>
 micvol::VolumeGuard::with_volume(&DeviceId, Volume) -> Result<VolumeGuard>
+```
+
+## Demo App
+
+A SwiftUI demo app is included in `demo/MicvolDemo/`. To build:
+
+```bash
+./scripts/build_release.sh
+cd demo/MicvolDemo
+xcodegen generate
+open MicvolDemo.xcodeproj
 ```
 
 ## License
