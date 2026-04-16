@@ -102,6 +102,10 @@ xcodegen generate
 open MicvolDemo.xcodeproj
 ```
 
+## 技术细节
+
+如需了解实现原理和技术文档，请联系作者。
+
 ## 许可证
 
 MIT
